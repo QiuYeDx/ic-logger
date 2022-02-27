@@ -10,7 +10,7 @@ import Option "mo:base/Option";
 import Logger "mo:ic-logger/Logger";
 
 shared(msg) actor class TextLogger() {
-  let OWNER = msg.caller;
+  let OWNER = msg.caller;z
 
   stable var state : Logger.State<Text> = Logger.new<Text>(0, null);
   let logger = Logger.Logger<Text>(state);
@@ -28,6 +28,10 @@ shared(msg) actor class TextLogger() {
   public shared (msg) func append(msgs: [Text]) {
     assert(Option.isSome(Array.find(allowed, func (id: Principal) : Bool { msg.caller == id })));
     logger.append(msgs);
+  };
+
+  public query func who() : async [Principal] {
+    allowed
   };
 
   // Return log stats, where:
