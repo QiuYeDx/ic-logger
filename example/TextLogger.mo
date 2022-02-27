@@ -1,55 +1,78 @@
-// Persistent logger keeping track of what is going on.
-
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
+import Iter "mo:base/Iter";
 import Deque "mo:base/Deque";
 import List "mo:base/List";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
+import Cycles "mo:base/ExperimentalCycles";
+import Principal "mo:base/Principal";
 
-import Logger "mo:ic-logger/Logger";
+import ICActor "ICActor";
+import LoggerActor "LoggerActor";
 
-shared(msg) actor class TextLogger() {
-  let OWNER = msg.caller;z
+actor {
+  private type LoggerActor = LoggerActor.LoggerActor;
+  private type LoggerInfo = {
+    id : Principal;
+    start_index : Nat;
+    var num : Nat;
+  };
+  private type View<A> = {
+    start_index: Nat;
+    messages: [A];
+  };
+  private let IC : ICActor.ICActor = actor ("aaaaa-aa");
+  private let LIMIT = 100;
+  private let cycle_limit = 1_000_000_000_000;
+  private var index = 0;
+  private var index_logger = 0;
+  private var loggers = Buffer.Buffer<LoggerInfo>(10);
 
-  stable var state : Logger.State<Text> = Logger.new<Text>(0, null);
-  let logger = Logger.Logger<Text>(state);
-
-  // Principals that are allowed to log messages.
-  stable var allowed : [Principal] = [OWNER];
-
-  // Set allowed principals.
-  public shared (msg) func allow(ids: [Principal]) {
-    assert(msg.caller == OWNER);
-    allowed := ids;
+  public shared (msg) func initLogger() {
+    Cycles.add(cycle_limit);
+    let principal_id = Principal.fromActor(await LoggerActor.LoggerActor(0));
+    _addLogger({
+      id = principal_id;
+      start_index = 0;
+      num = 0;
+    });
   };
 
-  // Add a set of messages to the log.
   public shared (msg) func append(msgs: [Text]) {
-    assert(Option.isSome(Array.find(allowed, func (id: Principal) : Bool { msg.caller == id })));
-    logger.append(msgs);
+    let total_size = msgs.size();
+    var rest = total_size;
+    var newest = loggers.get(index_logger);
+    if(newset.num < LIMIT){
+      let tmp = LIMIT - newest.num;
+      rest -= tmp;
+      let newest_logger : LoggerActor.LoggerActor = actor(Principal.toText(newest.id));
+      var tmp_arr : [var Text] = Array.init<Text>(tmp, "");
+      for(i in range(0, tmp - 1)){
+        tmp_arr[i] := msgs[i];
+      };
+      ignore await newest_logger.append(tmp_arr); // may be wrong?
+      loggers.put(index_logger, {
+        id = newest.id;
+        start_index = newest.start_index;
+        num = newest.num + ;
+      });
+    };
   };
 
-  public query func who() : async [Principal] {
-    allowed
+  public shared query (msg) func view(from: Nat, to: Nat) : async View<Text> {
+
   };
 
-  // Return log stats, where:
-  //   start_index is the first index of log message.
-  //   bucket_sizes is the size of all buckets, from oldest to newest.
-  public query func stats() : async Logger.Stats {
-    logger.stats()
+  public shared({caller}) func wallet_receive() : async Nat {
+    Cycles.accept(Cycles.available())
   };
 
-  // Return the messages between from and to indice (inclusive).
-  public shared query (msg) func view(from: Nat, to: Nat) : async Logger.View<Text> {
-    assert(msg.caller == OWNER);
-    logger.view(from, to)
+  private func _addLogger(info : LoggerInfo) {
+    loggers.add({
+      id =  info.id;
+      start_index = info.start_index;
+      num = info.num;
+    });
   };
-
-  // Drop past buckets (oldest first).
-  public shared (msg) func pop_buckets(num: Nat) {
-    assert(msg.caller == OWNER);
-    logger.pop_buckets(num)
-  }
 }
