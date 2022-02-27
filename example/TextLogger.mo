@@ -43,7 +43,7 @@ actor {
     let total_size = msgs.size();
     var rest = total_size;
     var newest = loggers.get(index_logger);
-    if(newset.num < LIMIT){
+    if(newset.num < LIMIT){ // need more--- discussion
       let tmp = LIMIT - newest.num;
       rest -= tmp;
       let newest_logger : LoggerActor.LoggerActor = actor(Principal.toText(newest.id));
@@ -51,7 +51,7 @@ actor {
       for(i in range(0, tmp - 1)){
         tmp_arr[i] := msgs[i];
       };
-      ignore await newest_logger.append(tmp_arr); // may be wrong?
+      ignore await newest_logger.append(tmp_arr);
       loggers.put(index_logger, {
         id = newest.id;
         start_index = newest.start_index;
