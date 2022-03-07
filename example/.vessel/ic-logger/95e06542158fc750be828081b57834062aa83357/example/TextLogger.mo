@@ -7,7 +7,7 @@ import List "mo:base/List";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 
-import Logger "mo:ic-logger/Logger";
+import Logger "./Logger";
 
 shared(msg) actor class TextLogger() {
   let OWNER = msg.caller;
@@ -20,7 +20,6 @@ shared(msg) actor class TextLogger() {
 
   // Set allowed principals.
   public shared (msg) func allow(ids: [Principal]) {
-    assert(msg.caller == OWNER);
     allowed := ids;
   };
 
@@ -43,4 +42,9 @@ shared(msg) actor class TextLogger() {
     logger.view(from, to)
   };
 
+  // Drop past buckets (oldest first).
+  public shared (msg) func pop_buckets(num: Nat) {
+    assert(msg.caller == OWNER);
+    logger.pop_buckets(num)
+  }
 }

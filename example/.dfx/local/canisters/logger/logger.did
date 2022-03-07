@@ -1,0 +1,26 @@
+type Result_1 = 
+ variant {
+   err: Error;
+   ok: text;
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok: vec text;
+ };
+type MultiLogger = 
+ service {
+   _append: (vec text) -> (Result_1);
+   _getNewLogger: () -> ();
+   _view: (nat, nat) -> (Result);
+   append: (vec text) -> (Result_1);
+   view: (nat, nat) -> (Result);
+   wallet_receive: () -> (nat);
+ };
+type Error = 
+ variant {
+   LoggerNotExist;
+   MsgInputSizeErr;
+   ViewRangeError;
+ };
+service : () -> MultiLogger

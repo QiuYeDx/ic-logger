@@ -1,7 +1,7 @@
 {
   "canisters": {
     "logger": {
-      "main": "TextLogger.mo",
+      "main": "MutiLogger.mo",
       "type": "motoko"
     }
   },
