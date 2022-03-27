@@ -1,0 +1,13 @@
+type Branch<K, V> = {left : Trie<K, V>; right : Trie<K, V>; size : Nat};
+type Leaf<K, V> = {keyvals : AssocList/1<Key<K>, V>; size : Nat};
+type Set<T> = Trie<T, ()>;
+type canister_id/1 = canister_id;
+actor {
+  stable var _THEM : Nat;
+  stable var canister_entries : [var (Nat, canister_id/1)];
+  stable var canister_number : Nat;
+  stable var owner_set :
+    {#branch : Branch<Principal, ()>; #empty; #leaf : Leaf<Principal, ()>};
+  stable var propose_entries : [var (Nat, (Nat, Nat, Nat))];
+  stable var vote_buffer_entries : [var (Nat, Set<Principal>)]
+};

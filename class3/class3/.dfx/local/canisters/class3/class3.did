@@ -1,0 +1,39 @@
+type class3 = 
+ service {
+   create_canister: () -> (Result_2);
+   delete_canister: (nat) -> (Result);
+   get_canisters: () -> (Result_1) query;
+   install_code: (vec nat8, nat) -> (Result);
+   propose: (nat, nat) -> (Result);
+   start_canister: (nat) -> (Result);
+   stop_canister: (nat) -> (Result);
+   vote: (nat, bool) -> (Result);
+ };
+type canister_id = principal;
+type Result_2 = 
+ variant {
+   err: Error;
+   ok: canister_id;
+ };
+type Result_1 = 
+ variant {
+   err: Error;
+   ok: vec record {
+             nat;
+             canister_id;
+           };
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok: text;
+ };
+type Error = 
+ variant {
+   CanisterNotExist;
+   PermissionDenied;
+   ProposeNotExist;
+   ProposeRepeat;
+   VotesAlready;
+ };
+service : (nat, vec principal) -> class3
