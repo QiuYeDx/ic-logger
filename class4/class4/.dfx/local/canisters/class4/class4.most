@@ -1,0 +1,32 @@
+// Version: 1.0.0
+type AssocList<K, V> = List<(K, V)>;
+type AssocList__1<K, V> = AssocList<K, V>;
+type Branch<K, V> = {left : Trie<K, V>; right : Trie<K, V>; size : Nat};
+type Hash = Nat32;
+type InstallCodeArgs = {canister_id : canister_id__1; wsm : [Nat8]};
+type Key<K> = {hash : Hash; key : K};
+type Leaf<K, V> = {keyvals : AssocList__1<Key<K>, V>; size : Nat};
+type List<T> = ?(T, List<T>);
+type Oprate = {#InstallCode; #StopCanister};
+type Proposal =
+  {var agreed : Set<Principal>; args : ProposalAgrs; done : Bool};
+type ProposalAgrs =
+  {
+    install_code_args : ?InstallCodeArgs;
+    memo : Text;
+    oprate : Oprate;
+    stop_canister_args : ?StopCanisterArgs
+  };
+type Set<T> = Trie<T, ()>;
+type StopCanisterArgs = {canister_id : canister_id__1};
+type Trie<K, V> = {#branch : Branch<K, V>; #empty; #leaf : Leaf<K, V>};
+type canister_id = Principal;
+type canister_id__1 = canister_id;
+actor {
+  stable var _THEM : Nat;
+  stable var canisters_entires : [Principal];
+  stable var members : [Principal];
+  stable var proposal_entries : [var (Nat, Proposal)];
+  stable var proposal_id : Nat;
+  stable var restricted_canister_entries : [Principal]
+};

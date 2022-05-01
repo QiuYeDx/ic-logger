@@ -1,0 +1,55 @@
+type class4 = 
+ service {
+   create_canister: (bool) -> (Result_2);
+   delete_canister: (canister_id) -> (Result_1);
+   exeProposal: (nat) -> (Result);
+   install_code: (vec nat8, canister_id) -> (Result_1);
+   issuedProposal: (ProposalAgrs) -> (Result);
+   setRestrictedCanister: (bool, principal) -> (Result);
+   start_canister: (canister_id) -> (Result_1);
+   stop_canister: (canister_id) -> (Result_1);
+   voteProposal: (nat, bool) -> (Result);
+ };
+type canister_id = principal;
+type StopCanisterArgs = record {canister_id: canister_id;};
+type Result_2 = 
+ variant {
+   err: Error;
+   ok: canister_id;
+ };
+type Result_1 = 
+ variant {
+   err: Error;
+   ok: text;
+ };
+type Result = 
+ variant {
+   err: Error;
+   ok;
+ };
+type ProposalAgrs = 
+ record {
+   install_code_args: opt InstallCodeArgs;
+   memo: text;
+   oprate: Oprate;
+   stop_canister_args: opt StopCanisterArgs;
+ };
+type Oprate = 
+ variant {
+   InstallCode;
+   StopCanister;
+ };
+type InstallCodeArgs = 
+ record {
+   canister_id: canister_id;
+   wsm: vec nat8;
+ };
+type Error = 
+ variant {
+   ArgsError;
+   MemberOnly;
+   PermissionDenied;
+   ProposalNotFound;
+   RestrictedCanister;
+ };
+service : (nat, vec principal) -> class4
